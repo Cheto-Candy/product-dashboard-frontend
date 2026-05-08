@@ -4,6 +4,8 @@ import api from "../api";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -16,14 +18,21 @@ const Products = () => {
   // =========================
   // 📦 GET ALL PRODUCTS
   // =========================
-  const getProducts = async () => {
+  const getProducts = async (currentPage = 1) => {
     try {
-      const res = await axios.get("http://localhost:3000/products", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        `http://localhost:3000/products?page=${currentPage}&limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("GET PRODUCTS:", res.data);
       setProducts(res.data.data);
+      setPage(res.data.currentPage);
+      setTotalPages(res.data.totalPages);
+
     } catch (err) {
       console.log("GET ERROR:", err.response?.data || err.message);
     }
@@ -139,48 +148,16 @@ const addProduct = async () => {
   // ⬇ LOAD PRODUCTS
   // =========================
   useEffect(() => {
-    getProducts();
-  }, []);
+    getProducts(page);
+    }, [page]);
 
-  return (
+ return (
     <div style={{ padding: "20px" }}>
       
       <h2>Products</h2>
 
-      <button onClick={logout}>Logout</button>
-
-      {/* ================= FORM ================= */}
-      <div style={{ marginTop: "20px" }}>
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <input
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-
-        <input
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        {editingId ? (
-          <>
-            <button onClick={updateProduct}>Update</button>
-            <button onClick={clearForm}>Cancel</button>
-          </>
-        ) : (
-          <button onClick={addProduct}>Add</button>
-        )}
-      </div>
-
-      {/* ================= LIST ================= */}
-      <div style={{ marginTop: "20px" }}>
+      {/* ================= PRODUCTS LIST ================= */}
+      <div>
         {products.map((p) => (
           <div
             key={p.id}
@@ -190,17 +167,37 @@ const addProduct = async () => {
               marginBottom: "10px",
             }}
           >
-            <h4>{p.name}</h4>
-            <p>{p.price}</p>
+            <h3>{p.name}</h3>
+            <p>Price: {p.price}</p>
             <p>{p.description}</p>
-
-            <button onClick={() => editProduct(p)}>Edit</button>
-            <button onClick={() => deleteProduct(p.id)}>Delete</button>
           </div>
         ))}
       </div>
+
+      {/* ================= PAGINATION ================= */}
+      <div style={{ marginTop: "20px" }}>
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Prev
+        </button>
+
+        <span style={{ margin: "0 10px" }}>
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
+      </div>
+
     </div>
   );
 };
+
 
 export default Products;
