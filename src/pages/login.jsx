@@ -1,119 +1,55 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import api from "../api";
 
-export default function Login() {
-  const styles = {
-  page: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
-    fontFamily: "Arial"
-  },
-
-  card: {
-    background: "white",
-    padding: "30px",
-    borderRadius: "12px",
-    width: "320px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-    textAlign: "center"
-  },
-
-  title: {
-    marginBottom: "20px"
-  },
-
-  input: {
-    width: "100%",
-    padding: "12px",
-    margin: "10px 0",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    outline: "none"
-  },
-
-  button: {
-    width: "100%",
-    padding: "12px",
-    background: "#667eea",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    marginTop: "10px",
-    fontWeight: "bold"
-  },
-
-  text: {
-    marginTop: "15px",
-    fontSize: "14px",
-    color: "#555"
-  },
-
-  link: {
-    color: "#667eea",
-    cursor: "pointer",
-    fontWeight: "bold"
-  }
-};
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/users/login", form);
+      const res = await api.post("/users/login", {
+        email,
+        password,
+      });
+      console.log(res.data);
 
-      alert(res.data.message);
+      localStorage.setItem("token", res.data.token);
 
       navigate("/products");
-    } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h2>Login</h2>
 
-      <div style={styles.card}>
-        <h2 style={styles.title}>🔐 Login</h2>
-
+      <form onSubmit={handleLogin}>
         <input
-          style={styles.input}
+          type="email"
           placeholder="Email"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => setEmail(e.target.value)}
         />
+        <br /><br />
 
         <input
-          style={styles.input}
           type="password"
           placeholder="Password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => setPassword(e.target.value)}
         />
+        <br /><br />
 
-        <button style={styles.button} onClick={handleLogin}>
-          Login
-        </button>
-
-        <p style={styles.text}>
-          Don’t have an account?{" "}
-          <span
-            style={styles.link}
-            onClick={() => navigate("/register")}
-          >
-            Register
-          </span>
-        </p>
-      </div>
-
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
-}
+};
+
+export default Login;

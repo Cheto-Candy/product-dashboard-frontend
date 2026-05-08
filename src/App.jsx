@@ -1,25 +1,21 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/login";
-import Register from "./pages/register";
-import Products from "./pages/products";
-import PrivateRoute from "./routes/PrivateRoute";
+import Login from "./pages/login"
+import Products from "./pages/Products";
+import ProtectedRoute from "./routes/PrivateRoute";
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Public routes */}
         <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
-        {/* 🔐 Private route */}
         <Route
           path="/products"
           element={
-            <PrivateRoute>
+            <ProtectedRoute>
               <Products />
-            </PrivateRoute>
+            </ProtectedRoute>
           }
         />
 
@@ -27,3 +23,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+export default App;

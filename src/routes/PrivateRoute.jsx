@@ -1,17 +1,13 @@
 import { Navigate } from "react-router-dom";
 
-export default function PrivateRoute({ children }) {
-  const isLoggedIn = document.cookie.includes("connect.sid");
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
 
-  if (!isLoggedIn) {
-    return (
-      <Navigate 
-        to="/" 
-        replace 
-        state={{ message: "You are not logged in" }} 
-      />
-    );
+  if (!token) {
+    return <Navigate to="/" />;
   }
 
   return children;
-}
+};
+
+export default ProtectedRoute;
